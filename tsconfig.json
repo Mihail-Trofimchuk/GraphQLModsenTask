@@ -16,6 +16,28 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "forceConsistentCasingInFileNames": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@app/db": [
+        "libs/db/src"
+      ],
+      "@app/db/*": [
+        "libs/db/src/*"
+      ],
+      "@app/auth": [
+        "libs/auth/src"
+      ],
+      "@app/auth/*": [
+        "libs/auth/src/*"
+      ],
+      "@app/winston": [
+        "libs/winston/src",
+        "libs/winston/src"
+      ],
+      "@app/winston/*": [
+        "libs/winston/src/*",
+        "libs/winston/src/*"
+      ]
+    }
   }
 }
