@@ -3,12 +3,11 @@ import { Cart } from './cart.entity';
 // import { Cart } from './cart.entity';
 
 @ObjectType()
-@Directive('@shareable')
 @Directive('@key(fields: "user_id")')
 export class User {
   @Field(() => ID)
-  user_id: string;
+  user_id: number;
 
-  @Field(() => [Cart], { nullable: true })
-  cart?: Cart[];
+  @Field(() => Cart, { nullable: true })
+  cart?: Cart;
 }

@@ -1,4 +1,5 @@
 import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
+import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
 
 @Entity({ name: 'user_table' })
@@ -18,8 +19,8 @@ export class User {
   @Field()
   displayName: string;
 
-  // @Field(() => Cart)
-  // cart?: Cart;
+  @Field(() => Cart)
+  cart?: Cart;
 
   @Column()
   @Field()

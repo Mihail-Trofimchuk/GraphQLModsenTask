@@ -10,7 +10,9 @@ import {
   OneToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+
 import { User } from 'apps/account/src/user/entities/user.entity';
+import { User as GQ } from './user.entity';
 
 @Entity({ name: 'cart_table' })
 @Directive('@shareable')
@@ -20,27 +22,27 @@ export class Cart {
   @Field(() => ID)
   id: number;
 
-  @Column()
+  @Column({ nullable: true })
   @Field(() => Float)
-  total_quantity: number;
+  total_quantity?: number;
 
-  @Column()
+  @Column({ nullable: true })
   @Field(() => Int)
-  total_price: number;
+  total_price?: number;
 
   @Column()
   @Field()
   @CreateDateColumn()
   created_at: string;
 
-  @Column()
+  @Column({ nullable: true })
   @Field()
-  updated_at: string;
+  updated_at?: string;
 
   //@OneToOne(() => User, (user) => user.cart) // Определение связи
   // @JoinColumn({ name: 'id' })
 
-  @OneToOne(() => User)
+  @OneToOne(() => User, (user) => user.user_id)
   @JoinColumn()
   @Field(() => User)
   user: User;

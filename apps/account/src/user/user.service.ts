@@ -47,6 +47,9 @@ export class UserService {
     return newUser;
   }
 
+  async findUserByCartId(id: number) {
+    return await this.userRepository.findUserByCartId(id);
+  }
   async findAll(): Promise<User[]> {
     return await this.userRepository.findAll();
   }

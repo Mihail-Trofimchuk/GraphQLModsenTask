@@ -41,12 +41,15 @@ mutation DeleteCategory {
   }
 }
 
-// Поиск категории по ID
 query GetCategory {
-  getCategory( id: 37) {
-      category_name
-      category_id
+  getCategory(id: 2) {
+    category_id
+    category_name
+    products {
+      price
+      name
     }
+  }
 }
 
 

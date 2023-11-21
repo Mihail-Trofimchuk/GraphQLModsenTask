@@ -19,6 +19,12 @@ export class UserRepository {
     return await this.userRepository.findOneBy({ user_id });
   }
 
+  async findUserByCartId(id: number) {
+    return await this.userRepository.findOne({
+      where: { cart: { id: id } },
+    });
+  }
+
   async createUser(
     { displayName, email }: CreateUserInput,
     passwordHash: string,

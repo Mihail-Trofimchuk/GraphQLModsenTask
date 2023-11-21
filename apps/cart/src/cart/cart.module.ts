@@ -11,6 +11,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Cart } from './entities/cart.entity';
 import { User } from './entities/user.entity';
 import { CartItem } from './entities/cart-item';
+import { CartController } from './cart.controller';
+import { CartRepository } from './cart.repository';
 
 @Module({
   imports: [
@@ -23,6 +25,7 @@ import { CartItem } from './entities/cart-item';
       },
     }),
   ],
-  providers: [CartResolver, CartService],
+  controllers: [CartController],
+  providers: [CartResolver, CartService, CartRepository],
 })
 export class CartModule {}
