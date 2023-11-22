@@ -1,4 +1,5 @@
 import {
+  Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -14,14 +15,42 @@ import { GraphQLError } from 'graphql';
 import { LoginUserInput } from './dto/input/login-user.input';
 import { ERROR_MESSAGES } from './user.constants';
 import { UserRepository } from './user.repository';
+import { ClientKafka } from '@nestjs/microservices';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jwtService: JwtService,
-    private readonly configService: ConfigService, //private readonly kafkaService: KafkaService,
+    private readonly configService: ConfigService,
+    @Inject('USER_CLIENT') private kafkaClient: ClientKafka,
   ) {}
+
+  async onModuleInit() {
+    this.kafkaClient.subscribeToResponseOf('create_cart');
+    this.kafkaClient.subscribeToResponseOf('search_cart');
+    await this.kafkaClient.connect();
+  }
+
+  async getCartByUserId(user_id: number) {
+    const cartResponse: Cart = await lastValueFrom(
+      this.kafkaClient.send('search_cart', { user_id: user_id }),
+    );
+    console.log(cartResponse);
+    return cartResponse;
+  }
+
+  async createCart(user: User) {
+    return await firstValueFrom(
+      this.kafkaClient.send('create_cart', { user: user }),
+    );
+  }
+
+  async findUserById(user_id: number) {
+    return this.userRepository.findUserById(user_id);
+  }
 
   async register(createUserInput: CreateUserInput): Promise<User> {
     const oldUser = await this.userRepository.findUserByEmail(
@@ -128,10 +157,6 @@ export class UserService {
     return {
       user_id: user.user_id,
     };
-  }
-
-  async findUserById(user_id: number) {
-    return this.userRepository.findUserById(user_id);
   }
 
   /// Test ///

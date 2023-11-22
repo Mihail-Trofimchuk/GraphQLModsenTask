@@ -12,7 +12,7 @@ import {
 } from 'typeorm';
 
 import { User } from 'apps/account/src/user/entities/user.entity';
-import { User as GQ } from './user.entity';
+//import { User as GQ } from './user.entity';
 
 @Entity({ name: 'cart_table' })
 @Directive('@shareable')
@@ -38,9 +38,6 @@ export class Cart {
   @Column({ nullable: true })
   @Field()
   updated_at?: string;
-
-  //@OneToOne(() => User, (user) => user.cart) // Определение связи
-  // @JoinColumn({ name: 'id' })
 
   @OneToOne(() => User, (user) => user.user_id)
   @JoinColumn()

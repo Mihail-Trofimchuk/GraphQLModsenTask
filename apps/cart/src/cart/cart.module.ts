@@ -13,11 +13,35 @@ import { User } from './entities/user.entity';
 import { CartItem } from './entities/cart-item';
 import { CartController } from './cart.controller';
 import { CartRepository } from './cart.repository';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { CartItemResolver } from './cart-item.resolver';
 
 @Module({
   imports: [
     DbModule,
     TypeOrmModule.forFeature([Cart, User, CartItem]),
+    ClientsModule.registerAsync({
+      clients: [
+        {
+          name: 'CART_CLIENT',
+          imports: [ConfigModule],
+          inject: [ConfigService],
+          useFactory: () => ({
+            transport: Transport.KAFKA,
+            options: {
+              client: {
+                brokers: ['localhost:9092'],
+                clientId: 'cart-service',
+              },
+              consumer: {
+                groupId: 'cart-service-consumer',
+              },
+            },
+          }),
+        },
+      ],
+    }),
     GraphQLModule.forRoot<ApolloFederationDriverConfig>({
       driver: ApolloFederationDriver,
       autoSchemaFile: {
@@ -26,6 +50,6 @@ import { CartRepository } from './cart.repository';
     }),
   ],
   controllers: [CartController],
-  providers: [CartResolver, CartService, CartRepository],
+  providers: [CartResolver, CartService, CartRepository, CartItemResolver],
 })
 export class CartModule {}

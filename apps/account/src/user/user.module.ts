@@ -36,7 +36,7 @@ export const getJWTConfig = (): JwtModuleAsyncOptions => ({
           name: 'USER_CLIENT',
           imports: [ConfigModule],
           inject: [ConfigService],
-          useFactory: (configService: ConfigService) => ({
+          useFactory: () => ({
             transport: Transport.KAFKA,
             options: {
               client: {

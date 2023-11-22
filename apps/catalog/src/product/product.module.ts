@@ -13,6 +13,7 @@ import { ProductRepository } from './product.repository';
 import { ProductResolver } from './product.resolver';
 import { ProductService } from './product.service';
 import { WinstonModule } from '@app/winston';
+import { CatalogController } from './product.controller';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { WinstonModule } from '@app/winston';
       // },
     }),
   ],
+  controllers: [CatalogController],
   providers: [
     ProductResolver,
     CategoryResolver,

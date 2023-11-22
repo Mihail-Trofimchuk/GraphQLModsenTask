@@ -47,7 +47,7 @@ type Product @key(fields: "id") {
   name: String!
   description: String
   price: Float!
-  category: Category!
+  category: Category
   image: String!
   created_at: String!
   updated_at: String!

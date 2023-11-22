@@ -15,4 +15,13 @@ export class CartController {
 
     return await this.cartService.createCart(user);
   }
+
+  @MessagePattern('search_cart')
+  async searchUserCart(@Payload() { user_id }: { user_id: number }) {
+    console.log(user_id);
+
+    const cart = await this.cartService.findUserCart(user_id);
+    console.log(cart);
+    return JSON.stringify(cart);
+  }
 }

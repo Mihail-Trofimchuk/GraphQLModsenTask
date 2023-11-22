@@ -207,6 +207,29 @@ query GetUsers {
 }
 
 
+/// CartItem
+
+mutation createCartItem {
+  createCartItem(createCartItemInput: {
+    cart_id: 5,
+    product_id: 1,
+    quantity: 3,
+  }) {
+    cartItem_id
+    subtotal
+    cartItem_quantity
+    cartProduct {
+      id
+      name
+      price
+      description
+      image
+      created_at
+      updated_at
+      available_quantity 
+    }
+  }
+}
 
 
 "@apollo/federation": "^0.38.1",

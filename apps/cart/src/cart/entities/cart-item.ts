@@ -21,7 +21,7 @@ export class CartItem {
   @Field(() => Int)
   cartItem_quantity: number;
 
-  @Column()
+  @Column({ type: 'float' })
   @Field(() => Float)
   subtotal: number;
 
