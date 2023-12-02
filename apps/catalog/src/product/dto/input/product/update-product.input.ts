@@ -8,7 +8,7 @@ export class UpdateProductInput {
 
   @Field()
   @IsNotEmpty()
-  name: string;
+  name?: string;
 
   @Field({ nullable: true })
   @IsString()
@@ -16,20 +16,16 @@ export class UpdateProductInput {
 
   @Field(() => Float)
   @IsNumber()
-  price: number;
+  price?: number;
 
   @Field()
   @IsNotEmpty()
   @IsNumber()
-  category_id: number;
+  category_id?: number;
 
   @Field()
   @IsString()
-  image: string;
-
-  @Field()
-  @IsDate()
-  created_at: string;
+  image?: string;
 
   @Field()
   @IsDate()

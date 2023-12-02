@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
-import { CartModule } from './cart/cart.module';
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+
+import { CartModule } from './cart/cart.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(CartModule);
@@ -15,7 +16,6 @@ async function bootstrap() {
     options: {
       client: {
         brokers: ['localhost:9092'],
-        // clientId: 'user-service',
       },
       consumer: {
         groupId: 'cart-service-consumer',

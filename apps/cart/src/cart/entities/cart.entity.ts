@@ -1,5 +1,5 @@
-import { ObjectType, Field, Float, ID, Int, Directive } from '@nestjs/graphql';
-import { CartItem } from './cart-item';
+import { ObjectType, Field, Float, ID, Directive } from '@nestjs/graphql';
+
 import {
   Column,
   CreateDateColumn,
@@ -11,6 +11,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
+import { CartItem } from './cart-item';
 import { User } from 'apps/account/src/user/entities/user.entity';
 //import { User as GQ } from './user.entity';
 
@@ -26,8 +27,8 @@ export class Cart {
   @Field(() => Float)
   total_quantity?: number;
 
-  @Column({ nullable: true })
-  @Field(() => Int)
+  @Column({ type: 'float', nullable: true })
+  @Field(() => Float)
   total_price?: number;
 
   @Column()
@@ -44,7 +45,7 @@ export class Cart {
   @Field(() => User)
   user: User;
 
-  @ManyToMany(() => CartItem, { cascade: true }) // Определение связи
+  @ManyToMany(() => CartItem, { cascade: true })
   @JoinTable({ name: 'cartItem_id' })
   @Field(() => [CartItem])
   items?: CartItem[];

@@ -1,8 +1,16 @@
 import { IsString } from 'class-validator';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique,
+} from 'typeorm';
+
 import { Product } from './product.entity';
 
 @Entity({ name: 'category_table' })
+@Unique(['category_name'])
 // @ObjectType('Category')
 // @Directive('@key(fields: "category_id")')
 // @Directive('@shareable')

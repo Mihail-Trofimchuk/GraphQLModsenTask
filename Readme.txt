@@ -5,18 +5,16 @@
 
  // Создание категории 
  mutation CreateCategory {
-    createCategory(input: {
+  createCategory(input: {
       name: "Frutes",
       products:
       {
-      name: "${createProductInput.name}",
-      description: "${createProductInput.description}",
-      price: 23.34,
-      category_id: 37,
-      image: "urlsdfkojo odsi",
-      created_at: "2023-10-04T19:50:01.957Z",
-      updated_at: "2023-10-04T19:50:01.957Z",
-      available_quantity: 2,
+        name: "${createProductInput.name}",
+        description: "${createProductInput.description}",
+        price: 23.34,
+        category_id: 37,
+        image: "urlsdfkojo odsi",
+        available_quantity: 2,
       }
   },) {
     category_id
@@ -41,6 +39,8 @@ mutation DeleteCategory {
   }
 }
 
+
+// Конкретная котегория
 query GetCategory {
   getCategory(id: 2) {
     category_id
@@ -49,6 +49,25 @@ query GetCategory {
       price
       name
     }
+  }
+}
+
+
+// Все категории
+query AllCategories {
+  allCategories {
+    category_name
+      category_id
+      products {
+        id
+        name
+        description
+        price
+        image
+        created_at
+        updated_at
+        available_quantity
+      }
   }
 }
 
@@ -64,20 +83,18 @@ query GetCategory {
             createProduct(CreateProductInput: {
               name: "${createProductInput.name}",
               description: "${createProductInput.description}",
-              price: 23.34,
-              category_id: 37,
+              price: 10000000.45234323252324343,
+              category_id: 7,
               image: "urlsdfkojo odsi",
-              created_at: "2023-10-04T19:50:01.957Z",
-              updated_at: "2023-10-04T19:50:01.957Z",
-              available_quantity: 2,
+              available_quantity: 0,
             },) {
               id
               name
               description
               price
               category {
-                category_name
                 category_id
+                category_name
               }
               image
               created_at
@@ -123,16 +140,14 @@ query GetProduct {
 }
 
 // Обновление продукта
- mutation UpdateProduct {
+  mutation UpdateProduct {
     updateProduct(updateProductInput: {
-      id: 42,
+      id: 132,
       name: "${createProductInput.name}",
       description: "${createProductInput.description}",
       price: 23.34,
       category_id: 37,
       image: "urlsdfkojo odsi",
-      created_at: "2023-10-04T19:50:01.957Z",
-      updated_at: "2023-10-04T19:50:01.957Z",
       available_quantity: 7,
     },) {
       id
@@ -231,6 +246,95 @@ mutation createCartItem {
   }
 }
 
+mutation DeleteCartItem {
+  deleteCartItem(deleteCartItemInput: {
+    cart_id: 6,
+    cartItem_id: 41
+  }) {
+    cartItem_id
+    subtotal
+    cartItem_quantity
+    cartProduct {
+      id
+      name
+      price
+      description
+      image
+      created_at
+      updated_at
+      available_quantity 
+    }
+  }
+}
+
+mutation UpdateCartItem {
+  updateCartItem (updateCartItemInput: {
+    cart_id: 6,
+    cartItem_id: 43,
+    cartItem_quantity: 5,
+  }) {
+    cartItem_id
+    subtotal
+    cartItem_quantity
+    cartProduct {
+      id
+      name
+      price
+      description
+      image
+      created_at
+      updated_at
+      available_quantity 
+    }
+  }
+}
+
+
+query FindCart{
+  cart(id: 6) {
+    created_at
+    id
+    total_price
+    total_quantity
+    items {
+      cartItem_id
+      cartItem_quantity
+      subtotal
+      cartProduct{
+         id
+          name
+          description
+          price
+          image
+          created_at
+          updated_at
+          available_quantity
+      }
+    }
+  
+  }
+}
+
+mutation CreateCharge{
+  createCharge(createOrderInput: {
+    user_id: 23
+    shippingAddress: "Malahitovaya d.2"
+  }) {
+    id
+    shippingAddress
+    status
+    total
+    createdAt
+    paymentStatus
+    cart {
+      id
+      total_price
+    }
+    user {
+      user_id
+    }
+  }
+}
 
 "@apollo/federation": "^0.38.1",
     "@apollo/gateway": "^2.2.3",

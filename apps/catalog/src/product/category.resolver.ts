@@ -7,19 +7,21 @@ import {
   ResolveField,
   Parent,
 } from '@nestjs/graphql';
+
 import { Category } from './entities/category.entity';
 import { ProductService } from './product.service';
 import { DeleteCategoryInput } from './dto/input/category/delete-category.input';
 import { CreateCategoryInput } from './dto/input/category/create-category.input';
+import { Product } from './entities/product.entity';
 
 @Resolver(() => Category)
 export class CategoryResolver {
   constructor(private readonly productService: ProductService) {}
 
-  //   @Query(() => [Category])
-  //   async categories(): Promise<Category[]> {
-  //     return this.productService.findAll();
-  //   }
+  @Query(() => [Category], { name: 'allCategories' })
+  async categories(): Promise<Category[]> {
+    return this.productService.findAllCategories();
+  }
 
   @Query(() => Category, { name: 'getCategory' })
   async getCategory(@Args('id') id: number): Promise<Category> {
@@ -27,9 +29,10 @@ export class CategoryResolver {
   }
 
   @Mutation(() => Category, { name: 'createCategory' })
-  async createCategory(@Args('input') input: CreateCategoryInput) {
+  async createCategory(
+    @Args('input') input: CreateCategoryInput,
+  ): Promise<Category> {
     const { products, ...categoryData } = input;
-
     const createdCategory =
       await this.productService.createCategoryWithProducts(
         categoryData,
@@ -54,7 +57,7 @@ export class CategoryResolver {
   }
 
   @ResolveField('products')
-  async products(@Parent() category) {
+  async products(@Parent() category: Category): Promise<Product[]> {
     const { category_id } = category;
     return this.productService.getProductsByCategory(category_id);
   }

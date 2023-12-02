@@ -6,7 +6,7 @@ type Category {
 
 input CreateCategoryInput {
   name: String!
-  products: [CreateProductInput!]
+  products: [CreateCategoryProductInput!]
 }
 
 input CreateProductInput {
@@ -15,8 +15,14 @@ input CreateProductInput {
   price: Float!
   category_id: Float!
   image: String!
-  created_at: String!
-  updated_at: String!
+  available_quantity: Int!
+}
+
+input CreateCategoryProductInput {
+  name: String!
+  description: String
+  price: Float!
+  image: String!
   available_quantity: Int!
 }
 
@@ -50,7 +56,7 @@ type Product @key(fields: "id") {
   category: Category
   image: String!
   created_at: String!
-  updated_at: String!
+  updated_at: String
   available_quantity: Int!
 }
 
@@ -58,16 +64,15 @@ type Query {
   getProducts: [Product]!
   getProduct(name: String!): Product
   getCategory(id: Float!): Category!
+  allCategories: [Category]!
 }
 
 input UpdateProductInput {
   id: Float!
-  name: String!
+  name: String
   description: String
-  price: Float!
-  category_id: Float!
-  image: String!
-  created_at: String!
-  updated_at: String!
-  available_quantity: Int!
+  price: Float
+  category_id: Float
+  image: String
+  available_quantity: Int
 }

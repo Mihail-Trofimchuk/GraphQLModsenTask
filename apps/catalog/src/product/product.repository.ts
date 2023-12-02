@@ -1,10 +1,18 @@
-import { Injectable } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Product } from './entities/product.entity';
+
 import { Repository } from 'typeorm';
+import { format } from 'date-fns';
+
+import { Product } from './entities/product.entity';
 import { CreateProductInput } from './dto/input/product/create-product.input';
 import { Category } from './entities/category.entity';
 import { UpdateProductInput } from './dto/input/product/update-product.input';
+import { ERROR_MESSAGES } from './constants/catalog.constants';
 
 @Injectable()
 export class ProductRepository {
@@ -26,6 +34,11 @@ export class ProductRepository {
     const categoryById = await this.categotyRepository.findOneBy({
       category_id,
     });
+
+    if (!categoryById) {
+      throw new NotFoundException(ERROR_MESSAGES.CATEGORY_NOT_FOUND);
+    }
+
     const category = new Category();
     category.category_id = category_id;
     category.category_name = categoryById.category_name;
@@ -36,17 +49,33 @@ export class ProductRepository {
     });
 
     await this.productRepository.save(product);
+    product.created_at = format(
+      new Date(product.created_at),
+      "yyyy-MM-dd'T'HH:mm:ss.SSSxxx",
+    );
     return product;
   }
 
   async createCategory(category_name: string) {
-    const category = this.categotyRepository.create({ category_name });
-    await this.categotyRepository.save(category);
-    return category;
+    try {
+      const category = this.categotyRepository.create({ category_name });
+      await this.categotyRepository.save(category);
+      return category;
+    } catch {
+      throw new ConflictException(ERROR_MESSAGES.CATEGOTY_ALREADY_EXISTS);
+    }
+  }
+
+  async findAllCategories() {
+    return this.categotyRepository.find({ relations: ['products'] });
   }
 
   async findCategoryById(category_id: number) {
     return this.categotyRepository.findOneBy({ category_id });
+  }
+
+  async findCategoryByName(category_name: string) {
+    return this.categotyRepository.findOneBy({ category_name });
   }
 
   async getProductsByCategory(category_id: number) {
@@ -69,10 +98,12 @@ export class ProductRepository {
   }
 
   async getProductById(id: number) {
-    return await this.productRepository.findOne({
+    const product = await this.productRepository.findOne({
       where: { id: id },
       relations: ['category'],
     });
+    console.log(product);
+    return product;
   }
 
   async updateProduct(
@@ -82,7 +113,9 @@ export class ProductRepository {
 
     const category = new Category();
     category.category_id = category_id;
-
+    updateData.updated_at = String(
+      new Date().toLocaleString('en-US', { timeZone: 'UTC' }),
+    );
     await this.productRepository.update(id, updateData);
 
     const updatedProduct = await this.productRepository.findOne({

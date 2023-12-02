@@ -37,6 +37,12 @@
       "@app/winston/*": [
         "libs/winston/src/*",
         "libs/winston/src/*"
+      ],
+      "@app/filters": [
+        "libs/filters/src"
+      ],
+      "@app/filters/*": [
+        "libs/filters/src/*"
       ]
     }
   }

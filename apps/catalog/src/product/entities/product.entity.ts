@@ -45,21 +45,13 @@ export class Product {
   // @Field()
   image: string;
 
-  @CreateDateColumn({
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-    select: true,
-  })
+  @CreateDateColumn({ type: 'timestamptz' })
   // @Field(() => String)
   created_at: string;
 
-  @CreateDateColumn({
-    type: 'timestamptz',
-    default: () => 'CURRENT_TIMESTAMP',
-    select: true,
-  })
+  @Column({ type: 'timestamptz', nullable: true })
   // @Field(() => String)
-  updated_at: string;
+  updated_at?: string;
 
   @Column()
   // @Field(() => Int)

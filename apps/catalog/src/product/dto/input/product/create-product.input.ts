@@ -1,5 +1,5 @@
 import { Field, Float, InputType, Int } from '@nestjs/graphql';
-import { IsDate, IsNotEmpty, IsNumber, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 
 @InputType()
 export class CreateProductInput {
@@ -23,14 +23,6 @@ export class CreateProductInput {
   @Field()
   @IsString()
   image: string;
-
-  @Field()
-  @IsDate()
-  created_at: string;
-
-  @Field()
-  @IsDate()
-  updated_at: string;
 
   @Field(() => Int)
   @IsNumber()

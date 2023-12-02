@@ -1,6 +1,19 @@
-import { Directive, Field, ID, ObjectType } from '@nestjs/graphql';
-import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
+import {
+  Directive,
+  Field,
+  ID,
+  ObjectType,
+  registerEnumType,
+} from '@nestjs/graphql';
+
 import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import Role from '@app/auth/Enum/role.enum';
+
+import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
+
+registerEnumType(Role, {
+  name: 'Role',
+});
 
 @Entity({ name: 'user_table' })
 @ObjectType()
@@ -25,17 +38,16 @@ export class User {
   @Column()
   @Field()
   passwordHash: string;
+
+  @Column({
+    type: 'enum',
+    enum: Role,
+    default: Role.USER,
+  })
+  @Field(() => Role)
+  role: Role;
+
+  @Column()
+  @Field()
+  stripeCustomerId: string;
 }
-
-// model User {
-//   id           Int     @id @default(autoincrement())
-//   email        String  @unique
-//   displayName  String? @map("display_name")
-//   passwordHash String? @map("password_hash")
-//   role         Role    @default(PARTICIPANT)
-
-//   avatarGoogleCloud         String?      @map("avatar_google_cloud")
-//   isEmailConfirmed          Boolean      @default(false) @map("is_email_confirmed")
-//   meetup                    UserMeetup[] @relation("Participants")
-//   organizedMeetings         Meetup[]     @relation("Organizer")
-//   currentHashedRefreshToken String?      @map("current_hashed_refresh_token")

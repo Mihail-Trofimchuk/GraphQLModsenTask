@@ -4,16 +4,20 @@ import {
   Module,
   UnauthorizedException,
 } from '@nestjs/common';
-import { ApiGatewayService } from './api-gateway.service';
 import { GraphQLModule } from '@nestjs/graphql';
-import { ApolloGatewayDriver, ApolloGatewayDriverConfig } from '@nestjs/apollo';
+import { ApolloGatewayDriver } from '@nestjs/apollo';
+
 import { IntrospectAndCompose, RemoteGraphQLDataSource } from '@apollo/gateway';
+import { verify } from 'jsonwebtoken';
+import responseCachePlugin from 'apollo-server-plugin-response-cache';
+import { ApolloServerPluginCacheControl } from 'apollo-server-core';
+
 import { DbModule } from '@app/db';
+import { SessionSerializer } from '@app/auth';
 import {
   INVALID_AUTH_TOKEN,
   INVALID_BEARER_TOKEN,
 } from './api-gateway.constants';
-import { verify } from 'jsonwebtoken';
 
 const getToken = (authToken: string): string => {
   const match = authToken.match(/^Bearer (.*)$/);
@@ -44,7 +48,7 @@ const handleAuth = ({ req }) => {
       const decoded: any = decodeToken(token);
       return {
         user_id: decoded.user_id,
-        // permissions: decoded.permissions,
+        role: decoded.role,
         authorization: `${req.headers.authorization}`,
       };
     }
@@ -58,12 +62,23 @@ const handleAuth = ({ req }) => {
 @Module({
   imports: [
     DbModule,
-    GraphQLModule.forRoot<ApolloGatewayDriverConfig>({
+    GraphQLModule.forRoot({
       driver: ApolloGatewayDriver,
       server: {
         context: handleAuth,
       },
-
+      cacheControl: {
+        defaultMaxAge: 5,
+      },
+      plugins: [
+        responseCachePlugin(),
+        ApolloServerPluginCacheControl({ defaultMaxAge: 5 }),
+      ],
+      playground: {
+        settings: {
+          'request.credentials': 'include',
+        },
+      },
       gateway: {
         buildService: ({ url }) => {
           return new RemoteGraphQLDataSource({
@@ -71,7 +86,7 @@ const handleAuth = ({ req }) => {
             willSendRequest({ request, context }: any) {
               request.http.headers.set('user_id', context.user_id);
               request.http.headers.set('authorization', context.authorization);
-              // request.http.headers.set('permissions', context.permissions);
+              request.http.headers.set('role', context.role);
             },
           });
         },
@@ -80,12 +95,18 @@ const handleAuth = ({ req }) => {
             { name: 'account', url: 'http://localhost:3003/graphql' },
             { name: 'cart', url: 'http://localhost:3005/graphql' },
             { name: 'catalog', url: 'http://localhost:3002/graphql' },
+            { name: 'order', url: 'http://localhost:3004/graphql' },
           ],
         }),
       },
     }),
   ],
   controllers: [],
-  providers: [ApiGatewayService],
+  providers: [
+    {
+      provide: 'SESSION_SERIALIZER',
+      useValue: new SessionSerializer(),
+    },
+  ],
 })
 export class ApiGatewayModule {}

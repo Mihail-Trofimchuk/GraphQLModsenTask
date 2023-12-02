@@ -40,9 +40,7 @@
 
 export interface JwtPayload {
   user_id: number;
-  username: string;
-  permissions: string[];
-  expiration?: Date;
+  role: Role;
 }
 
 import { Injectable } from '@nestjs/common';
@@ -50,16 +48,13 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 
 import { PassportStrategy } from '@nestjs/passport';
 
-import { AuthenticationError } from 'apollo-server-core';
+// import { AuthenticationError } from 'apollo-server-core';
 import { ConfigService } from '@nestjs/config';
-import { UserService } from 'apps/account/src/user/user.service';
+import Role from '../Enum/role.enum';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(
-    private userService: UserService,
-    private configService: ConfigService,
-  ) {
+  constructor(private configService: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       secretOrKey: configService.get('JWT_ACCESS_TOKEN_SECRET'),
@@ -67,13 +62,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: JwtPayload) {
-    const user = await this.userService.validateJwtPayload(payload);
-    if (!user) {
-      throw new AuthenticationError(
-        'Could ********** not log-in with the provided credentials',
-      );
-    }
+    return { user_id: payload.user_id, role: payload.role };
+    // const user = await this.userService.validateJwtPayload(payload);
+    // if (!user) {
+    //   throw new AuthenticationError(
+    //     'Could ********** not log-in with the provided credentials',
+    //   );
+    // }
 
-    return user;
+    // return user;
   }
 }

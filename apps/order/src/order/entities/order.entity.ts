@@ -5,8 +5,17 @@ import {
   ID,
   Float,
 } from '@nestjs/graphql';
-import { User } from './user.entity';
-import { Cart } from './cart.entity';
+import { User } from 'apps/account/src/user/entities/user.entity';
+
+import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 export enum PaymentStatus {
   PAID = 'PAID',
@@ -28,29 +37,48 @@ registerEnumType(PaymentStatus, {
   name: 'PaymentStatus',
 });
 
+@Entity({ name: 'order_table' })
 @ObjectType()
 export class Order {
+  @PrimaryGeneratedColumn()
   @Field(() => ID)
-  id: string;
+  id: number;
 
+  @Column({
+    type: 'enum',
+    enum: PaymentStatus,
+    default: PaymentStatus.NOT_PAID,
+  })
   @Field()
   paymentStatus: PaymentStatus;
 
+  @ManyToOne(() => User, (user) => user.user_id)
+  @JoinColumn()
   @Field(() => User)
   user: User;
 
+  @ManyToOne(() => Cart, (Cart) => Cart.id)
+  @JoinColumn()
   @Field(() => Cart)
   cart: Cart;
 
+  @Column()
   @Field()
   shippingAddress: string;
 
+  @Column({
+    type: 'enum',
+    enum: OrderStatus,
+    default: OrderStatus.PROCESSING,
+  })
   @Field(() => OrderStatus)
   status: OrderStatus;
 
+  @Column({ type: 'float' })
   @Field(() => Float)
-  total: number;
+  total?: number;
 
+  @CreateDateColumn()
   @Field(() => Date)
   createdAt: Date;
 }

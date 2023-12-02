@@ -1,11 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+
 import { Product } from '../../../apps/catalog/src/product/entities/product.entity';
 import { Category } from '../../../apps/catalog/src/product/entities/category.entity';
 import { User } from '../../../apps/account/src/user/entities/user.entity';
 import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
 import { CartItem } from 'apps/cart/src/cart/entities/cart-item';
+import { Order } from 'apps/order/src/order/entities/order.entity';
 // import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
 
 @Module({
@@ -20,7 +22,7 @@ import { CartItem } from 'apps/cart/src/cart/entities/cart-item';
         username: configService.get('DB_SERVER_USERNAME'),
         password: configService.get('DB_SERVER_PASSWORD'),
         database: configService.get('DATABASE'),
-        entities: [Product, Category, User, Cart, CartItem],
+        entities: [Product, Category, User, Cart, CartItem, Order],
         synchronize: true,
         logging: true,
       }),

@@ -1,6 +1,7 @@
 import { ApolloFederationDriver } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { GraphQLModule } from '@nestjs/graphql';
+
 import { UserModule } from './user/user.module';
 
 @Module({

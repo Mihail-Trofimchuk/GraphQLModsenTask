@@ -1,23 +1,25 @@
+import { ConfigService } from '@nestjs/config';
+import { JwtService } from '@nestjs/jwt';
 import {
   Inject,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { CreateUserInput } from './dto/input/create-user.input';
-import { User } from './entities/user.entity';
+import { ClientKafka } from '@nestjs/microservices';
 
-import { JwtPayload } from '@app/auth';
-import { ConfigService } from '@nestjs/config';
-import { JwtService } from '@nestjs/jwt';
 import { compare, genSalt, hash } from 'bcryptjs';
 import { GraphQLError } from 'graphql';
+import { firstValueFrom, lastValueFrom } from 'rxjs';
+
+import { JwtPayload } from '@app/auth';
+import Role from '@app/auth/Enum/role.enum';
+import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
+import { CreateUserInput } from './dto/input/create-user.input';
+import { User } from './entities/user.entity';
 import { LoginUserInput } from './dto/input/login-user.input';
 import { ERROR_MESSAGES } from './user.constants';
 import { UserRepository } from './user.repository';
-import { ClientKafka } from '@nestjs/microservices';
-import { firstValueFrom, lastValueFrom } from 'rxjs';
-import { Cart } from 'apps/cart/src/cart/entities/cart.entity';
 
 @Injectable()
 export class UserService {
@@ -31,6 +33,7 @@ export class UserService {
   async onModuleInit() {
     this.kafkaClient.subscribeToResponseOf('create_cart');
     this.kafkaClient.subscribeToResponseOf('search_cart');
+    this.kafkaClient.subscribeToResponseOf('create_customer');
     await this.kafkaClient.connect();
   }
 
@@ -59,19 +62,22 @@ export class UserService {
 
     if (oldUser) {
       throw new GraphQLError('USER_ALREADY_EXISTS');
-      // new ConflictException(ERROR_MESSAGES.USER_ALREADY_EXISTS),
     }
 
     const salt = await genSalt(10);
     const hashedPassword = await hash(createUserInput.password, salt);
+
+    const stripeCustomer = await lastValueFrom(
+      this.kafkaClient.send('create_customer', {
+        email: createUserInput.email,
+      }),
+    );
+
     const newUser = await this.userRepository.createUser(
       createUserInput,
       hashedPassword,
+      stripeCustomer.id,
     );
-
-    // await this.kafkaService.sendMessage('user.created', {
-    //   user_id: newUser.user_id,
-    // });
 
     return newUser;
   }
@@ -83,8 +89,11 @@ export class UserService {
     return await this.userRepository.findAll();
   }
 
-  public getCookieWithJwtAccessToken(user_id: number): Promise<string> {
-    const payload = { user_id };
+  public getCookieWithJwtAccessToken(
+    user_id: number,
+    role: Role,
+  ): Promise<string> {
+    const payload = { user_id, role };
     const token = this.jwtService.signAsync(payload, {
       secret: this.configService.get('JWT_ACCESS_TOKEN_SECRET'),
       expiresIn: `${this.configService.get(
@@ -108,40 +117,15 @@ export class UserService {
 
   async login(loginUserInput: LoginUserInput) {
     const { email, password } = loginUserInput;
-    const { user_id } = await this.validateUser(email, password);
-    const access_token = await this.getCookieWithJwtAccessToken(user_id);
-    //const refresh_token = await this.getCookieWithJwtRefreshToken(user_id);
-
-    // const user = await this.setCurrentRefreshToken(refresh_token, id);
+    const { user_id, role } = await this.validateUser(email, password);
+    const access_token = await this.getCookieWithJwtAccessToken(user_id, role);
 
     const user = await this.userRepository.findUserById(user_id);
-    // console.log(access_token);
-    // res.cookie('access_token', access_token);
-    // console.log(res);
-    //res.cookie(REFRESH_TOKEN, refresh_token);
 
     return { user, access_token };
-    // return {
-    //   access_token: access_token,
-    //   //refresh_token: refresh_token,
-    //   user: user,
-    // };
   }
 
-  // async setCurrentRefreshToken(refreshToken: string, userId: number) {
-  //   const currentHashedRefreshToken = await hash(refreshToken, 10);
-
-  //   const user = await this.userRepository.setCurrentRefreshToken(
-  //     userId,
-  //     currentHashedRefreshToken,
-  //   );
-  //   return user;
-  // }
-
-  async validateUser(
-    email: string,
-    password: string,
-  ): Promise<{ user_id: number }> {
+  async validateUser(email: string, password: string) {
     const user = await this.userRepository.findUserByEmail(email);
 
     if (!user) {
@@ -156,15 +140,13 @@ export class UserService {
 
     return {
       user_id: user.user_id,
+      role: user.role,
     };
   }
 
-  /// Test ///
   async validateJwtPayload(payload: JwtPayload): Promise<User | undefined> {
-    // This will be used when the user has already logged in and has a JWT
     const user = await this.userRepository.findUserById(payload.user_id);
 
-    // Ensure the user exists and their account isn't disabled
     if (user) {
       return user;
     }

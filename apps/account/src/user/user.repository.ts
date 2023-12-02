@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+
 import { Repository } from 'typeorm';
+
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/input/create-user.input';
 
@@ -28,11 +30,13 @@ export class UserRepository {
   async createUser(
     { displayName, email }: CreateUserInput,
     passwordHash: string,
+    stripeCustomerId: string,
   ) {
-    const newUser = await this.userRepository.create({
+    const newUser = this.userRepository.create({
       email,
       displayName,
       passwordHash,
+      stripeCustomerId,
     });
     const savedUser = await this.userRepository.save(newUser);
 

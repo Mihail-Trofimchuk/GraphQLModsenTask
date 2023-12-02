@@ -1,20 +1,22 @@
 import { Module } from '@nestjs/common';
-import { CartService } from './cart.service';
-import { CartResolver } from './cart.resolver';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { GraphQLModule } from '@nestjs/graphql';
+import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   ApolloFederationDriver,
   ApolloFederationDriverConfig,
 } from '@nestjs/apollo';
+
 import { DbModule } from '@app/db';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { RolesGuard } from '@app/auth/Guards/roles.guard';
+import { CartService } from './cart.service';
+import { CartResolver } from './cart.resolver';
 import { Cart } from './entities/cart.entity';
 import { User } from './entities/user.entity';
 import { CartItem } from './entities/cart-item';
 import { CartController } from './cart.controller';
 import { CartRepository } from './cart.repository';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import { ConfigModule, ConfigService } from '@nestjs/config';
 import { CartItemResolver } from './cart-item.resolver';
 
 @Module({
@@ -50,6 +52,12 @@ import { CartItemResolver } from './cart-item.resolver';
     }),
   ],
   controllers: [CartController],
-  providers: [CartResolver, CartService, CartRepository, CartItemResolver],
+  providers: [
+    CartResolver,
+    CartService,
+    CartRepository,
+    CartItemResolver,
+    RolesGuard,
+  ],
 })
 export class CartModule {}

@@ -1,11 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { CartRepository } from './cart.repository';
+import { ClientKafka } from '@nestjs/microservices';
+
+import { lastValueFrom } from 'rxjs';
+
 import { User } from 'apps/account/src/user/entities/user.entity';
+import { CartRepository } from './cart.repository';
 import { Cart } from './entities/cart.entity';
 import { CreateCartItemInput } from './dto/input/create-cart-item.input';
 import { Product } from 'apps/catalog/src/product/entities/product.entity';
-import { lastValueFrom } from 'rxjs';
-import { ClientKafka } from '@nestjs/microservices';
+import { DeleteCartItemInput } from './dto/input/delete-cart-item.input';
+import { UpdateCartItemInput } from './dto/input/update-cart-item.input';
 
 @Injectable()
 export class CartService {
@@ -16,17 +20,24 @@ export class CartService {
 
   async onModuleInit() {
     this.kafkaClient.subscribeToResponseOf('get_product');
-    //this.kafkaClient.subscribeToResponseOf('search_cart');
     await this.kafkaClient.connect();
   }
 
-  // getCartItems(id: number) {
-  //   return this.cartRepository.getCartItems(id);
-  // }
-
   createCart(user: User): Promise<Cart> {
-    console.log(user);
     return this.cartRepository.createCart(user);
+  }
+
+  async delete(deleteCartItemInput: DeleteCartItemInput) {
+    const { cart_id, cartItem_id } = deleteCartItemInput;
+    const cart = await this.cartRepository.findCartById(cart_id);
+    return this.cartRepository.deleteItem(cart, cartItem_id);
+  }
+
+  async update(updateCartItemInput: UpdateCartItemInput) {
+    const { cart_id, cartItem_id, cartItem_quantity } = updateCartItemInput;
+    const cart = await this.cartRepository.findCartById(cart_id);
+
+    return this.cartRepository.updateItem(cart, cartItem_id, cartItem_quantity);
   }
 
   async create(createCartItemInput: CreateCartItemInput) {

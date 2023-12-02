@@ -1,10 +1,5 @@
-import {
-  Args,
-  Parent,
-  Query,
-  ResolveProperty,
-  Resolver,
-} from '@nestjs/graphql';
+import { Args, Query, Resolver } from '@nestjs/graphql';
+
 import { CartService } from './cart.service';
 import { Cart } from './entities/cart.entity';
 
@@ -23,13 +18,4 @@ export class CartResolver {
   addCartItem(@Args('id') id: number) {
     return this.cartService.findCartById(id);
   }
-
-  //   @ResolveProperty('itemsWithProductInfo')
-  //   async getItemsWithProductInfo(@Parent() cart: Cart) {
-  //   // Здесь ваш код для получения items с информацией о продукте
-  //     return cart.items.map((item) => ({
-  //       ...item,
-  //       cartProduct: this.productService.getProductById(item.product_Id),
-  //     }));
-  // }
 }

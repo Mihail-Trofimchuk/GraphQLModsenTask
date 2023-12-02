@@ -1,7 +1,8 @@
 import { Directive, Field, Float, ID, Int, ObjectType } from '@nestjs/graphql';
-import { Cart } from './cart.entity';
+
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Product } from 'apps/catalog/src/product/entities/product.entity';
+import { Cart } from './cart.entity';
 import { Product as QraphQLProduct } from './product.entity';
 
 @Entity({ name: 'cart_item_table' })
@@ -11,7 +12,7 @@ import { Product as QraphQLProduct } from './product.entity';
 export class CartItem {
   @PrimaryGeneratedColumn()
   @Field(() => ID)
-  cartItem_id: string;
+  cartItem_id: number;
 
   @ManyToOne(() => Product, (Product) => Product.cartItem)
   @Field(() => QraphQLProduct)
