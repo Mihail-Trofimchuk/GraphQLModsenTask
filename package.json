@@ -120,6 +120,7 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^apps/(.*)$": "<rootDir>/apps/$1",
       "^@app/db(|/.*)$": "<rootDir>/libs/db/src/$1",
       "^@app/auth(|/.*)$": "<rootDir>/libs/auth/src/$1",
       "^@app/winston(|/.*)$": "<rootDir>/libs/winston/src/$1",
